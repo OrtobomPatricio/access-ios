@@ -1,23 +1,4 @@
-# ==========================================
-# CODEMAGIC CONFIGURATION - IMAGINE ACCESS
-# ==========================================
-# Configuración para compilar iOS sin Mac físico
-# 
-# INSTRUCCIONES DE CONFIGURACIÓN:
-# 1. Sube código a GitHub
-# 2. Ve a codemagic.io → Add application → Selecciona tu repo
-# 3. Ve a Settings → Secret Variables → Create group: "supabase_credentials"
-# 4. Agrega estas variables:
-#    - SUPABASE_URL = https://tcifttlxlictqrbuzvug.supabase.co
-#    - SUPABASE_ANON_KEY = sb_publishable_nvnYWs_K1tUdUoxP21RlgQ_Bx4N5Kwx
-# 5. Configura tu email en la sección publishing
-# 6. Actualiza el bundle_identifier con tu dominio único
-# ==========================================
-
 workflows:
-  # ==========================================
-  # WORKFLOW: Build para desarrollo (Debug)
-  # ==========================================
   ios-debug:
     name: iOS Debug Build
     instance_type: mac_mini_m1
@@ -27,7 +8,7 @@ workflows:
       xcode: latest
       cocoapods: default
       groups:
-        - supabase_credentials  # Variables de entorno de Supabase
+        - supabase_credentials
     cache:
       cache_paths:
         - ~/.pub-cache
@@ -36,50 +17,36 @@ workflows:
       events:
         - push
       branch_patterns:
-        - pattern: develop
-          include: true
         - pattern: main
           include: true
     scripts:
       - name: Setup Environment
         script: |
-          echo "Setting up Supabase credentials..."
           echo "SUPABASE_URL=${SUPABASE_URL}" > .env
           echo "SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}" >> .env
-          echo "✓ Environment file created"
-      
       - name: Install Dependencies
         script: |
           flutter clean
           flutter pub get
-      
       - name: Install Pods
         script: |
           cd ios
           pod install --repo-update
           cd ..
-      
       - name: Analyze Code
         script: flutter analyze --no-pub
-      
       - name: Build iOS Debug
         script: flutter build ios --debug --no-codesign
-    
     artifacts:
       - build/ios/iphonesimulator/*.app
-      - build/ios/Debug-iphonesimulator/*.app
-    
     publishing:
       email:
         recipients:
-          - ${CM_EMAIL}  # Configura tu email en Codemagic
+          - ${CM_EMAIL}
         notify:
           success: true
           failure: true
 
-  # ========================================== 
-  # WORKFLOW: Build para App Store (Release)
-  # ==========================================
   ios-release:
     name: iOS Release Build
     instance_type: mac_mini_m1
@@ -88,10 +55,9 @@ workflows:
       flutter: stable
       xcode: latest
       cocoapods: default
-      # Configuración de firma - requiere certificados Apple Developer
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.imagineaccess.app  # ⚠️ CAMBIA ESTO por tu Bundle ID único
+        bundle_identifier: com.imagineaccess.app
       groups:
         - supabase_credentials
     cache:
@@ -110,26 +76,20 @@ workflows:
         script: |
           echo "SUPABASE_URL=${SUPABASE_URL}" > .env
           echo "SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}" >> .env
-      
       - name: Install Dependencies
         script: |
           flutter clean
           flutter pub get
-      
       - name: Install Pods
         script: |
           cd ios
           pod install --repo-update
           cd ..
-      
       - name: Build IPA
         script: |
-          flutter build ipa --release \
-            --export-options-plist=/Users/builder/export_options.plist
-    
+          flutter build ipa --release --export-options-plist=/Users/builder/export_options.plist
     artifacts:
       - build/ios/ipa/*.ipa
-    
     publishing:
       email:
         recipients:
