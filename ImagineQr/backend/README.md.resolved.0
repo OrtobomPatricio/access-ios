@@ -1,0 +1,62 @@
+# Imagine Qr - Backend Setup Guide
+
+## 1. Google Sheet Setup
+1. Create a new Google Sheet at [sheets.google.com](https://sheets.google.com).
+2. Name it "Imagine Qr Database".
+3. Rename the default tab to `entradas` (lowercase).
+4. Create two more tabs: `logs` and `devices`.
+
+## 2. Install the Script
+1. In the Google Sheet, go to **Extensions** > **Apps Script**.
+2. Delete any code in [Code.gs](file:///C:/Users/Hp/.gemini/antigravity/brain/ec8a58d1-d714-41b9-a6bb-0d9d20225c0f/backend/Code.gs) and paste the content of the [backend/Code.gs](file:///C:/Users/Hp/.gemini/antigravity/brain/ec8a58d1-d714-41b9-a6bb-0d9d20225c0f/backend/Code.gs) file provided in this project.
+3. Save the project (Ctrl+S) as "ImagineQrAPI".
+
+## 3. Initialize Headers
+1. In the Apps Script editor toolbar, select the function [setupSheet](file:///C:/Users/Hp/.gemini/antigravity/brain/ec8a58d1-d714-41b9-a6bb-0d9d20225c0f/backend/Code.gs#226-253) from the dropdown.
+2. Click **Run**.
+3. Accept the permissions (Authorization Required > Review Permissions > Choose Account > Advanced > Go to ImagineQrAPI (unsafe) > Allow).
+4. Verify in your Google Sheet that the headers have been created in all 3 tabs.
+
+## 4. Deploy as Web App
+1. Click the blue **Deploy** button (top right) > **New deployment**.
+2. **Select type**: Web App.
+3. **Description**: "v1".
+4. **Execute as**: Me (your-email@gmail.com).
+5. **Who has access**: **Anyone**. (Crucial for the mobile app to access it without Google Login).
+6. Click **Deploy**.
+7. Copy the **Web App URL** (ends in `/exec`).
+   - This URL is your `API_BASE_URL` for the Flutter App.
+
+## 5. Add Test Data
+**Tab `devices`**:
+- A default device is created by [setupSheet](file:///C:/Users/Hp/.gemini/antigravity/brain/ec8a58d1-d714-41b9-a6bb-0d9d20225c0f/backend/Code.gs#226-253):
+  - `device_id`: `DEV_01`
+  - `pin`: `1234`
+  - `enabled`: `TRUE` (checkbox)
+
+**Tab `entradas`**:
+Add a test row:
+- `event_id`: `TEST_EVENT`
+- `entry_id`: `uuid-1`
+- `tipo`: `anticipada`
+- `nombre`: `Juan`
+- `apellido`: `Prueba`
+- `qr_value`: `IMQR1|TEST_EVENT|uuid-1`
+- `estado`: `valid`
+
+## 6. Test the API
+You can test using Postman or curl:
+
+```bash
+curl -L -X POST "YOUR_WEB_APP_URL" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "action": "validate",
+           "eventId": "TEST_EVENT",
+           "qrValue": "IMQR1|TEST_EVENT|uuid-1",
+           "deviceId": "DEV_01",
+           "pin": "1234"
+         }'
+``` 
+
+If successful, `result` should be `valid` and the sheet row should update to `used`.

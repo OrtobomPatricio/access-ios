@@ -1,0 +1,47 @@
+# Flutter SDK (do NOT upload the entire SDK)
+/flutter/
+
+# Flutter build artifacts
+**/build/
+**/.dart_tool/
+**/.packages
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Dart/Pub
+**/.pub-cache/
+**/.pub/
+**/pubspec.lock
+
+# Android
+**/android/.gradle/
+**/android/local.properties
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+**/*.jks
+**/*.keystore
+
+# iOS
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+
+# Large binary files (GitHub limit: 100MB)
+flutter_sdk.zip
+
+# Miscellaneous
+*.log
+*.pyc
